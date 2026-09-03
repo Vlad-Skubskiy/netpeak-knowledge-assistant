@@ -1,0 +1,17 @@
+venv/
+.venv/
+env/
+
+.env
+.env.*
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+.chroma/
+chroma_data/
+*.log
+
+.vscode/
+.idea/
