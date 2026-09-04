@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import select
 from src.db.models import Base, ChatHistory
+from sqlalchemy import delete
 
 DATABASE_URL = "sqlite+aiosqlite:///./data/bot_database.db"
 
@@ -33,3 +34,11 @@ async def get_recent_history(user_id: int, limit: int = 6) -> list[dict]:
         
         messages.reverse()
         return [{"role": m.role, "content": m.content} for m in messages]
+
+
+async def clear_user_history(user_id: int):
+    """Видаляє всю історію повідомлень конкретного користувача."""
+    async with async_session() as session:
+        stmt = delete(ChatHistory).where(ChatHistory.user_id == user_id)
+        await session.execute(stmt)
+        await session.commit()
