@@ -6,9 +6,15 @@ class GeminiEmbeddingFunction(EmbeddingFunction):
     def __init__(self, client_instance: genai.Client):
         self.client = client_instance
 
+        available = [
+            m.name for m in self.client.models.list()
+            if "embedContent" in getattr(m, "supported_actions", [])
+        ]
+        self.model_name = available[0] if available else "models/text-embedding-004"
+
     def __call__(self, input: list[str]) -> Embeddings:
         response = self.client.models.embed_content(
-            model="text-embedding-004",
+            model=self.model_name,
             contents=input
         )
         return [e.values for e in response.embeddings]
@@ -17,11 +23,14 @@ class RAGService:
     def __init__(self, api_key: str):
         self.client = genai.Client(api_key=api_key)
         self.chroma_client = chromadb.Client()
-        self.collection = self.chroma_client.create_collection(
+
+        self.collection = self.chroma_client.get_or_create_collection(
             name="company_rules",
             embedding_function=GeminiEmbeddingFunction(self.client)
         )
-        self._seed_database()
+
+        if self.collection.count() == 0:
+            self._seed_database()
 
     def _seed_database(self):
         documents = [
@@ -53,7 +62,18 @@ class RAGService:
 Запитання: {user_query}
 """
         response = self.client.models.generate_content(
-            model="gemini-3.6-flash",
+            model="gemini-2.5-flash",
             contents=prompt
         )
         return response.text
+
+
+if __name__ == "__main__":
+    import os
+    
+    api_key = os.environ.get("GEMINI_API_KEY", "YOUR_API_KEY")
+    rag = RAGService(api_key=api_key)
+    
+    query = "Як подати заявку на відпустку?"
+    print(f"Запитання: {query}")
+    print(f"Відповідь: {rag.answer_question(query)}")
