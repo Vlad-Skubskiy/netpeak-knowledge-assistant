@@ -8,7 +8,7 @@ An enterprise-ready Telegram bot featuring a complete RAG (Retrieval-Augmented G
 * **Modern AI Integration:** Powered by the new `google-genai` SDK (Gemini Flash) for fast, context-aware responses.
 * **Production-Ready:** Built with a modular architecture (`aiogram 3.x` routers), strict separation of concerns, and fully containerized for one-click deployment.
 
-## 🛠 Tech Stack
+##  Tech Stack
 * **Language:** Python 3.12
 * **Bot Framework:** `aiogram` 3.x
 * **AI & Vector Search:** `google-genai`, `chromadb` (PersistentClient)
